@@ -1,0 +1,213 @@
+[
+    {
+        "id": "9333a5782eef5527",
+        "type": "tab",
+        "label": "GPS&Sensor",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5735b7e3126ce4c5",
+        "type": "mqtt in",
+        "z": "9333a5782eef5527",
+        "name": "Gateway",
+        "topic": "publish_gps",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "e064f2acfea0bccd",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 80,
+        "y": 140,
+        "wires": [
+            [
+                "838c5f9c2468cdbd",
+                "636e665d68d58d91"
+            ]
+        ]
+    },
+    {
+        "id": "838c5f9c2468cdbd",
+        "type": "function",
+        "z": "9333a5782eef5527",
+        "name": "GPS",
+        "func": "var data = msg.payload;\nvar temp = data.split(\",\");\nvar out = {};\nout[\"s\"] = temp[0];\nout[\"mac_id\"] = temp[1];\nout[\"gate_id\"] = temp[2];\nout[\"rssi\"] = temp[3];\nout[\"lat\"] = temp[6];\nout[\"long\"] = temp[7];\nout[\"speed\"] = temp[8];\nout[\"hdop\"] = temp[9];\nout[\"timestp\"]= temp[10];\n\nif(out[\"s\"]==\"$GPSR\")\n{   out[\"timestp\"] = out[\"timestp\"].slice(0, 10);\n    var sam = out[\"timestp\"] * 1000;\n    var date = new Date(sam);\n    var month = (\"0\" + (date.getMonth() + 1)).slice(-2);\n    var day = (\"0\" + (date.getDate())).slice(-2);\n    var year = date.getFullYear();\n    var hour = (\"0\" + (date.getHours())).slice(-2);\n    var min = (\"0\" + (date.getMinutes())).slice(-2);\n    var seg = (\"0\" + (date.getSeconds())).slice(-2);\n    out[\"timestp\"] = year + \"-\" + month + \"-\" + day + \" \" + hour + \":\" + min + \":\" + seg;\n}\n\nmsg.payload = out;\nif(out[\"s\"]==\"$GPSR\")\n{ return msg; }\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 180,
+        "wires": [
+            [
+                "2918457dfdd5745b",
+                "31c0a08bc3b66b48"
+            ]
+        ]
+    },
+    {
+        "id": "cbe65d02c0895383",
+        "type": "function",
+        "z": "9333a5782eef5527",
+        "name": "SQL_sensor",
+        "func": "msg.topic =\"INSERT INTO sensor(mac_id,gate_id,rssi,Battery,Temperature,Humidity,timestp)\"+\n    \"VALUES ('\" + msg.payload.mac_id + \"','\" + msg.payload.gate_id + \"','\" + msg.payload.rssi + \"','\" + msg.payload.Battery + \"','\" + msg.payload.Temp + \"','\" + msg.payload.Humidity + \"','\" + msg.payload.timestp + \"')\"\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 100,
+        "wires": [
+            [
+                "f4b53e3219cb8b73"
+            ]
+        ]
+    },
+    {
+        "id": "636e665d68d58d91",
+        "type": "function",
+        "z": "9333a5782eef5527",
+        "name": "Temp&Humidity",
+        "func": "//MQTT Data splitting\nvar data = msg.payload;\nvar temp = data.split(\",\");\nvar out = {}; \n\nout[\"s\"] = temp[0];\nout[\"mac_id\"] = temp[1];\nout[\"gate_id\"] = temp[2];\nout[\"rssi\"] = temp[3];\nout[\"mf_data\"] = temp[4];\nout[\"timestp\"] = temp[5];\n\n// timestamp conversion \nout[\"timestp\"] = out[\"timestp\"].slice(0,10);\nvar sam = out[\"timestp\"]*1000;\nvar date = new Date(sam);\nvar month = (\"0\" + (date.getMonth() + 1)).slice(-2);\nvar day = (\"0\" + (date.getDate())).slice(-2);\nvar year = date.getFullYear();\nvar hour = (\"0\" + (date.getHours())).slice(-2);\nvar min = (\"0\" + (date.getMinutes())).slice(-2);\nvar seg = (\"0\" + (date.getSeconds())).slice(-2);\nout[\"timestp\"] = year + \"-\" + month + \"-\" + day + \" \" + hour + \":\" + min + \":\" + seg;\n\nvar inputString = out[\"mf_data\"];\n\n// index ranges to delete\nvar indexRangesToDelete = [\n    { start: 0, end: 17 },   \n    { start: 22, end: 23 },\n    { start: 32, end: 45 },\n];\nindexRangesToDelete.sort((a, b) => b.start - a.start);\nindexRangesToDelete.forEach(function (range) {\n    inputString = inputString.slice(0, range.start) + inputString.slice(range.end + 1);\n});\n\n// Extract hexadecimal values from mf_data\nvar index1 = 4, index2 = 8, index3 = 12;\nvar var1 = inputString.slice(0, index1);\nvar var2 = inputString.slice(index1, index2);\nvar var3 = inputString.slice(index2, index3);\n\n//sawpping of hexadecimal values\nvar firstTwo1 = var1.slice(0, 2);\nvar lastTwo1 = var1.slice(2, 4);\nvar modStr1 = lastTwo1 + firstTwo1;\n\nvar firstTwo2 = var2.slice(0, 2);\nvar lastTwo2 = var2.slice(2, 4);\nvar modStr2 = lastTwo2 + firstTwo2;\n\nvar firstTwo3 = var3.slice(0, 2);\nvar lastTwo3 = var3.slice(2, 4);\nvar modStr3 = lastTwo3 + firstTwo3;\n\n//conversion of hexadecimal to decimal values\nout[\"Battery\"] = (parseInt(modStr1, 16))/100;\nout[\"Temp\"] = (parseInt(modStr2, 16))/100;\nout[\"Humidity\"] = parseInt(modStr3, 16);\n\nmsg.payload = out;\nif( out[\"s\"]==\"$GPRP\")\n{ if (out[\"mac_id\"] == \"0081F96B497A\" || out[\"mac_id\"] == \"0081F96B490D\") \n  { return msg; }\n}",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 100,
+        "wires": [
+            [
+                "cbe65d02c0895383",
+                "831563163c2a674a"
+            ]
+        ]
+    },
+    {
+        "id": "2918457dfdd5745b",
+        "type": "function",
+        "z": "9333a5782eef5527",
+        "name": "SQL_gps",
+        "func": "msg.topic =\"INSERT INTO gps(mac_id,gate_id,rssi,lat,longi,speed,hdop,timestp)\"+\n    \"VALUES ('\" + msg.payload.mac_id + \"','\" + msg.payload.gate_id + \"','\" + msg.payload.rssi + \"','\" + msg.payload.lat + \"','\" + msg.payload.long + \"','\" + msg.payload.speed + \"','\" + msg.payload.hdop + \"','\" + msg.payload.timestp + \"' )\"\nreturn msg; ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 180,
+        "wires": [
+            [
+                "e6adfa476e060acb"
+            ]
+        ]
+    },
+    {
+        "id": "31c0a08bc3b66b48",
+        "type": "debug",
+        "z": "9333a5782eef5527",
+        "name": "GPS",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "831563163c2a674a",
+        "type": "debug",
+        "z": "9333a5782eef5527",
+        "name": "Temp&Humidity",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "e6adfa476e060acb",
+        "type": "mysql",
+        "z": "9333a5782eef5527",
+        "mydb": "9afd4370bfb02e17",
+        "name": "gps_temp_gps",
+        "x": 680,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f4b53e3219cb8b73",
+        "type": "mysql",
+        "z": "9333a5782eef5527",
+        "mydb": "9afd4370bfb02e17",
+        "name": "gps_temp_sensor",
+        "x": 690,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e064f2acfea0bccd",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "192.168.23.23",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "9afd4370bfb02e17",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "db": "gps_temp",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
