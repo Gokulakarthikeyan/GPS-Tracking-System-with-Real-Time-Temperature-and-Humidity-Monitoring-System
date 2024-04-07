@@ -25,14 +25,14 @@
 
     Node-Red
 
-   <img src= "![Screenshot 2024-04-07 223845](https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/056aaa22-437f-4331-9c3d-1e84781069db)">
+   <img src= "https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/056aaa22-437f-4331-9c3d-1e84781069db">
     
     Maria-DB
     
-   <img src= "![Screenshot 2024-04-07 224550](https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/6f992bc2-81ff-4b89-8d88-cd1d7bd50fdd)">
+   <img src= "https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/6f992bc2-81ff-4b89-8d88-cd1d7bd50fdd">
 
     Grafana
     
-   <img src= "![Screenshot 2024-03-17 195824](https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/3d2b3a72-08d8-41cb-8615-2a13e8e0f8d6)">
+   <img src= "https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/3d2b3a72-08d8-41cb-8615-2a13e8e0f8d6">
    
-   <img src= "![Screenshot 2024-03-17 195842](https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/6b8e5161-e0c4-492c-98c3-42ef144c9f86)">
+   <img src= "https://github.com/Gokulakarthikeyan/GPS-Tracking-System-with-Real-Time-Temperature-and-Humidity-Monitoring-System/assets/103558082/6b8e5161-e0c4-492c-98c3-42ef144c9f86">
